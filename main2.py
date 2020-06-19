@@ -147,7 +147,7 @@ class OneLayerGraph:
 #-----------------------------------------------------------------------------
 def main():
     strt = datetime.now()
-
+    print ('Starting at {}'.format( strt.strftime( '%Y-%m-%d %H:%M:%S')))
     begin = (0,0)
     finish = (ROWS-1, COLS-1)
     gr = OneLayerGraph(ROWS, COLS)

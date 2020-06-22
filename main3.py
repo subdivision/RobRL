@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from PIL import Image
 
-NUM_OF_ITERS = 10000
-ROWS = 10
-COLS = 10
+NUM_OF_ITERS = 100
+ROWS = 400
+COLS = 400
 VISITED = 10
 OBSTACLE = 0
 
@@ -28,7 +28,7 @@ class OneLayerGraph:
         # "draw" some obstacles
         #self.matrix[self.rows//2, self.cols//4:self.cols*3//4] = OBSTACLE
         self.matrix[self.rows//2, 0:self.cols*3//4] = OBSTACLE
-        #self.matrix[self.rows//4:self.rows//2+1, self.cols*3//4] = OBSTACLE
+        self.matrix[self.rows//4:self.rows//2+1, self.cols*3//4] = OBSTACLE
 
     #-----------------------------------------------------------------------------
     def init_reward_qvals(self, target_idx = (99,99)):
@@ -36,7 +36,7 @@ class OneLayerGraph:
         self.qvals  = np.zeros( (self.rows*2+1, self.cols*2+1), dtype = np.float)
 
         for neig_idx in self.get_valid_edge_deltas(target_idx, without_obstacles=True):
-            self.reward[ target_idx[0] + neig_idx[0], target_idx[1] + neig_idx[1] ] = 100
+            self.reward[ target_idx[0] * 2 + 1 + neig_idx[0], target_idx[1] * 2 + 1 + neig_idx[1] ] = 100
 
         self.qvals[0,:] = -100
         self.qvals[:,0] = -100
@@ -173,7 +173,7 @@ def main():
     begin = (0,0)
     finish = (ROWS-1, COLS-1)
     gr = OneLayerGraph(ROWS, COLS)
-    gr.learn(0.2, finish, 0.8, 0.8)
+    gr.learn(0.8, finish, 0.8, 0.8)
     gr.compute_path(begin, finish)
     fnsh = datetime.now()
     print(str( fnsh-strt ))

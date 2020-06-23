@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from PIL import Image
 
-NUM_OF_ITERS = 100
-ROWS = 400
-COLS = 400
+NUM_OF_ITERS = 50000
+ROWS = 450
+COLS = 550
 VISITED = 10
 OBSTACLE = 0
 
@@ -19,7 +19,7 @@ class OneLayerGraph:
     def __init__(self, rows, cols):
         self.rows = rows
         self.cols = cols
-        self.deltas = [ (1, 0), (0, 1), (-1, 0), (0, -1) ]
+        self.deltas = [ (0, 1), (1, 0), (-1, 0), (0, -1) ]
         self.init_maze()
 
     #-----------------------------------------------------------------------------
@@ -28,7 +28,12 @@ class OneLayerGraph:
         # "draw" some obstacles
         #self.matrix[self.rows//2, self.cols//4:self.cols*3//4] = OBSTACLE
         self.matrix[self.rows//2, 0:self.cols*3//4] = OBSTACLE
+        self.matrix[self.rows//3, self.cols*4//5 + 1:] = OBSTACLE
+        self.matrix[self.rows*2//3, self.cols//2 + 1:] = OBSTACLE
         self.matrix[self.rows//4:self.rows//2+1, self.cols*3//4] = OBSTACLE
+        self.matrix[self.rows//4:self.rows//2+1, self.cols//2] = OBSTACLE
+        self.matrix[0:self.rows//4 - 2, self.cols*3//4] = OBSTACLE
+        self.matrix[0:self.rows//4 - 2, self.cols//2] = OBSTACLE
 
     #-----------------------------------------------------------------------------
     def init_reward_qvals(self, target_idx = (99,99)):
@@ -87,8 +92,18 @@ class OneLayerGraph:
         return candidates
 
     #-----------------------------------------------------------------------------
+    def shuffle_deltas(self):
+        random_val = random.uniform(0,1)
+        if random_val <= 0.3:
+            self.deltas = [ (0, 1), (1, 0), (-1, 0), (0, -1) ]
+        else:
+            self.deltas = [ (1, 0), (0, 1), (-1, 0), (0, -1) ]
+
+    #-----------------------------------------------------------------------------
     def next_stop(self, curr_idx, err):
         random_val = random.uniform(0,1)
+        #self.deltas = np.random.permutation(self.deltas)
+        self.shuffle_deltas()
         candidates = []
         if random_val < err:
             candidates = self.get_valid_edge_deltas(curr_idx)
@@ -149,10 +164,11 @@ class OneLayerGraph:
         next_idx = begin
         while next_idx != end:
             next_idx = self.get_not_visited_neigh( next_idx, end, self.get_all_deltas_with_max_qval( next_idx ) )
-            try:
+            if next_idx is None:
+                print ('No path found.')
+                break
+            else:
                 self.matrix[next_idx[0],next_idx[1]] = VISITED
-            except:
-                print (next_idx)
 
     #-----------------------------------------------------------------------------
     def get_image(self):
@@ -173,10 +189,11 @@ def main():
     begin = (0,0)
     finish = (ROWS-1, COLS-1)
     gr = OneLayerGraph(ROWS, COLS)
-    gr.learn(0.8, finish, 0.8, 0.8)
+    gr.learn(1., finish, 0.8, 0.8)
     gr.compute_path(begin, finish)
     fnsh = datetime.now()
-    print(str( fnsh-strt ))
+    print('Time consumed:', str( fnsh-strt ))
+    print ('Finishing at {}'.format( strt.strftime( '%Y-%m-%d %H:%M:%S')))
     img = gr.get_image()
     img.show()
 

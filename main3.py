@@ -94,10 +94,14 @@ class OneLayerGraph:
     #-----------------------------------------------------------------------------
     def shuffle_deltas(self):
         random_val = random.uniform(0,1)
-        if random_val <= 0.3:
+        if random_val <= 0.25:
             self.deltas = [ (0, 1), (1, 0), (-1, 0), (0, -1) ]
-        else:
+        elif 0.25 < random_val <= 0.5:
             self.deltas = [ (1, 0), (0, 1), (-1, 0), (0, -1) ]
+        elif 0.5 < random_val <= 0.75:
+            self.deltas = [ (0, 1), (1, 0), (0, -1), (-1, 0) ]
+        elif 0.75 < random_val:
+            self.deltas = [ (1, 0), (0, 1), (0, -1), (-1, 0) ]
 
     #-----------------------------------------------------------------------------
     def next_stop(self, curr_idx, err):
@@ -189,12 +193,13 @@ def main():
     begin = (0,0)
     finish = (ROWS-1, COLS-1)
     gr = OneLayerGraph(ROWS, COLS)
-    gr.learn(1., finish, 0.8, 0.8)
+    gr.learn(0.5, finish, 0.6, 0.6)
     gr.compute_path(begin, finish)
     fnsh = datetime.now()
     print('Time consumed:', str( fnsh-strt ))
-    print ('Finishing at {}'.format( strt.strftime( '%Y-%m-%d %H:%M:%S')))
+    print ('Finishing at {}'.format( fnsh.strftime( '%Y-%m-%d %H:%M:%S')))
     img = gr.get_image()
+    img.save('roboth_path.png')
     img.show()
 
 #-----------------------------------------------------------------------------

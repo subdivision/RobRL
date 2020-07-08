@@ -19,7 +19,7 @@ class OneLayerGraph:
     def __init__(self, rows, cols):
         self.rows = rows
         self.cols = cols
-        self.deltas = [(1, 1), (1, 0), (0, 1),
+        self.deltas = [(1, 0), (1, 1), (0, 1),
                        (-1, 1), (1, -1), (-1, 0),
                        (0, -1), (-1, -1)]
         self.init_maze()
@@ -156,6 +156,7 @@ def main():
     fnsh = datetime.now()
     print(str( fnsh-strt ))
     img = gr.get_image()
+    img.save('roboth_path.png')
     img.show()
 
 #-----------------------------------------------------------------------------
